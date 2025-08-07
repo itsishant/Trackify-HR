@@ -4,15 +4,28 @@ import { Routes, Route, useNavigate, Link, Navigate } from 'react-router-dom';
 
 const API_BASE = 'https://trackify-hr.onrender.com';
 
+interface Employee {
+  _id?: string;
+  f_userName?: string;
+  f_Pwd?: string;
+  f_Name?: string;
+  f_Email?: string;
+  f_Mobile?: string;
+  f_Designation?: string;
+  f_gender?: string;
+  f_Course?: string[];
+  f_Image?: string;
+}
+
 function LoginPage() {
-  const [form, setForm] = useState({});
+  const [form, setForm] = useState<Employee>({});
   const navigate = useNavigate();
 
   const handleLogin = async () => {
     try {
-      const res = await axios.post(`${API_BASE}/api/login`, form);
+      const res = await axios.post<{ success: boolean }>(`${API_BASE}/api/login`, form);
       if (res.data?.success) {
-        localStorage.setItem('user', form.f_userName);
+        localStorage.setItem('user', form.f_userName || '');
         window.dispatchEvent(new Event('storage'));
         navigate('/dashboard');
       } else {
@@ -35,7 +48,7 @@ function LoginPage() {
 }
 
 function SignupPage() {
-  const [form, setForm] = useState({});
+  const [form, setForm] = useState<Employee>({});
   const navigate = useNavigate();
 
   const handleSignup = async () => {
@@ -60,13 +73,13 @@ function SignupPage() {
 }
 
 function DashboardPage() {
-  const [employees, setEmployees] = useState([]);
-  const [form, setForm] = useState({});
+  const [employees, setEmployees] = useState<Employee[]>([]);
+  const [form, setForm] = useState<Employee>({});
   const navigate = useNavigate();
 
   const loadEmployees = async () => {
     try {
-      const res = await axios.get(`${API_BASE}/api/employees`);
+      const res = await axios.get<{ Employees: Employee[] }>(`${API_BASE}/api/employees`);
       setEmployees(res.data.Employees);
     } catch {
       alert("Could not fetch employee data.");
@@ -81,15 +94,17 @@ function DashboardPage() {
 
   const handleUpdate = async () => {
     try {
-      await axios.put(`${API_BASE}/api/employees/${form._id}`, form);
-      loadEmployees();
-      setForm({});
+      if (form._id) {
+        await axios.put(`${API_BASE}/api/employees/${form._id}`, form);
+        loadEmployees();
+        setForm({});
+      }
     } catch {
       alert("Update failed");
     }
   };
 
-  const handleDelete = async (id) => {
+  const handleDelete = async (id: string) => {
     try {
       await axios.delete(`${API_BASE}/api/employees/${id}`);
       loadEmployees();
@@ -128,7 +143,7 @@ function DashboardPage() {
         <div key={emp._id}>
           <b>{emp.f_Name}</b> - {emp.f_Email} - {emp.f_Mobile}
           <button onClick={() => setForm(emp)}>Edit</button>
-          <button onClick={() => handleDelete(emp._id)}>Delete</button>
+          <button onClick={() => emp._id && handleDelete(emp._id)}>Delete</button>
         </div>
       ))}
     </div>
