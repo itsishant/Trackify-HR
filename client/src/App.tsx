@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import axios from 'axios';
 import { Routes, Route, useNavigate, Link, Navigate } from 'react-router-dom';
 
-const API_BASE = 'http://localhost:3000';
+const API_BASE = 'https://trackify-hr.onrender.com';
 
 function LoginPage() {
   const [form, setForm] = useState({});
@@ -43,7 +43,7 @@ function SignupPage() {
       await axios.post(`${API_BASE}/api/signup`, form);
       alert('User registered successfully');
       navigate('/login');
-    } catch (err) {
+    } catch {
       alert('Username already exists or another error occurred.');
     }
   };
@@ -65,41 +65,38 @@ function DashboardPage() {
   const navigate = useNavigate();
 
   const loadEmployees = async () => {
-  try {
-    const res = await axios.get(`${API_BASE}/api/employees`);
-    setEmployees(res.data.Employees);
-  } catch {
-    alert("Could not fetch employee data.");
-  }
-};
+    try {
+      const res = await axios.get(`${API_BASE}/api/employees`);
+      setEmployees(res.data.Employees);
+    } catch {
+      alert("Could not fetch employee data.");
+    }
+  };
 
   const handleCreate = async () => {
     await axios.post(`${API_BASE}/api/employees`, form);
     loadEmployees();
     setForm({});
   };
-const handleUpdate = async () => {
-  try {
-    console.log("Updating ID:", form._id);
-    await axios.put(`${API_BASE}/api/employees/${form._id}`, form);
-    loadEmployees();
-    setForm({});
-  } catch (error) {
-    console.error("Update failed:", error.response?.data || error.message);
-    alert("Update failed");
-  }
-};
 
-const handleDelete = async (id) => {
-  try {
-    await axios.delete(`${API_BASE}/api/employees/${id}`);
-    loadEmployees();
-  } catch (error) {
-    console.error("Delete failed:", error.response?.data || error.message);
-    alert("Delete failed");
-  }
-};
+  const handleUpdate = async () => {
+    try {
+      await axios.put(`${API_BASE}/api/employees/${form._id}`, form);
+      loadEmployees();
+      setForm({});
+    } catch {
+      alert("Update failed");
+    }
+  };
 
+  const handleDelete = async (id) => {
+    try {
+      await axios.delete(`${API_BASE}/api/employees/${id}`);
+      loadEmployees();
+    } catch {
+      alert("Delete failed");
+    }
+  };
 
   const handleLogout = () => {
     localStorage.clear();
