@@ -1,5 +1,12 @@
 dist
-./dist
+./server/dist
 .env
 node_modules
-./node_modules
+./server/node_modules
+.gitignore
+./server/.env
+# Ignore root node_modules (if any)
+node_modules/
+node_modules/
+dist/
+.env
